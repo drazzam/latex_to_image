@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LaTeX → Image Converter</title>
-
 <script>
 window.MathJax = {
   tex: {
@@ -12,7 +11,9 @@ window.MathJax = {
     displayMath: [['$$', '$$'], ['\\[', '\\]']],
     packages: {'[+]': ['ams', 'boldsymbol', 'cancel', 'color', 'mathtools']},
   },
-  svg: { fontCache: 'none' },
+  svg: {
+    fontCache: 'none'
+  },
   startup: {
     ready: () => {
       MathJax.startup.defaultReady();
@@ -26,91 +27,199 @@ window.MathJax = {
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg-full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.2.3/dist/svg2pdf.umd.min.js"></script>
-
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   :root {
-    --bg: #0f1117; --surface: #1a1d27; --surface-2: #242836;
-    --border: #2e3348; --border-focus: #5b6abf;
-    --text: #e2e4ed; --text-dim: #8b90a5;
-    --accent: #7c8cf5; --accent-hover: #6b7ce8;
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-2: #242836;
+    --border: #2e3348;
+    --border-focus: #5b6abf;
+    --text: #e2e4ed;
+    --text-dim: #8b90a5;
+    --accent: #7c8cf5;
+    --accent-hover: #6b7ce8;
     --accent-glow: rgba(124, 140, 245, 0.15);
-    --preview-bg: #ffffff; --radius: 10px;
-    --warn: #e8a838; --warn-bg: rgba(232,168,56,0.08); --warn-border: rgba(232,168,56,0.25);
-    --info: #5b9fd6; --info-bg: rgba(91,159,214,0.08); --info-border: rgba(91,159,214,0.25);
+    --success: #2d6a4f;
+    --preview-bg: #ffffff;
+    --radius: 10px;
+    --warn: #e8a838;
+    --warn-bg: rgba(232, 168, 56, 0.08);
+    --warn-border: rgba(232, 168, 56, 0.25);
   }
+
   body {
     font-family: 'IBM Plex Sans', sans-serif;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; padding: 40px 20px;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
   }
+
   .container { width: 100%; max-width: 820px; }
+
   header { margin-bottom: 36px; }
-  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
-  header h1 span { color: var(--accent); }
-  header p { font-size: 13px; color: var(--text-dim); font-weight: 300; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+
+  header h1 {
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.5px; margin-bottom: 6px;
   }
+
+  header h1 span { color: var(--accent); }
+
+  header p { font-size: 13px; color: var(--text-dim); font-weight: 300; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px;
+  }
+
   .card-label {
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1.2px; color: var(--text-dim); margin-bottom: 12px;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-dim); margin-bottom: 12px;
     display: flex; align-items: center; gap: 8px;
   }
-  .card-label .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  .card-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%; background: var(--accent);
+  }
+
   textarea {
-    width: 100%; min-height: 110px; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 8px; color: var(--text);
-    font-family: 'JetBrains Mono', monospace; font-size: 14px;
-    line-height: 1.7; padding: 16px; resize: vertical; outline: none;
+    width: 100%; min-height: 110px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; line-height: 1.7;
+    padding: 16px; resize: vertical; outline: none;
     transition: border-color 0.2s;
   }
-  textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--accent-glow); }
-  textarea::placeholder { color: #4a4f68; }
-  .controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
-  button {
-    font-family: 'IBM Plex Sans', sans-serif; font-weight: 500; font-size: 13px;
-    border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer;
-    transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+
+  textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
   }
+
+  textarea::placeholder { color: #4a4f68; }
+
+  .controls {
+    display: flex; gap: 10px; margin-top: 14px;
+    flex-wrap: wrap; align-items: center;
+  }
+
+  button {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500; font-size: 13px;
+    border: none; border-radius: 8px;
+    padding: 10px 20px; cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+
   .btn-render { background: var(--accent); color: #fff; }
-  .btn-render:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px var(--accent-glow); }
+  .btn-render:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+
   .btn-export { background: #2d6a4f; color: #fff; }
   .btn-export:hover { background: #367d5c; transform: translateY(-1px); }
   .btn-export:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-  .btn-clear { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+
+  .btn-clear {
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
   .btn-clear:hover { color: var(--text); border-color: var(--text-dim); }
-  .options-row { display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
-  .opt-group { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); }
+
+  .options-row {
+    display: flex; gap: 14px; margin-top: 14px;
+    flex-wrap: wrap; align-items: center;
+  }
+
+  .opt-group {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-dim);
+  }
+
   .opt-group select, .opt-group input {
-    background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
-    border-radius: 6px; padding: 6px 10px; font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
     font-size: 12px; outline: none;
   }
+
   .opt-group select { cursor: pointer; }
-  .opt-group input[type="number"] { width: 72px; text-align: center; -moz-appearance: textfield; }
-  .opt-group input[type="number"]::-webkit-inner-spin-button,
-  .opt-group input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
-  .opt-group input:focus, .opt-group select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px var(--accent-glow); }
-  .format-note {
-    display: none; margin-top: 10px; padding: 8px 12px; border-radius: 6px;
-    font-size: 11px; line-height: 1.55; align-items: flex-start; gap: 8px;
+
+  .opt-group input[type="number"] {
+    width: 72px; text-align: center;
+    -moz-appearance: textfield;
   }
-  .format-note.visible { display: flex; }
+
+  .opt-group input[type="number"]::-webkit-inner-spin-button,
+  .opt-group input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+
+  .opt-group input:focus, .opt-group select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+
+  .format-note {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    line-height: 1.5;
+    border: 1px solid var(--warn-border);
+    background: var(--warn-bg);
+    color: var(--warn);
+  }
+
+  .format-note.visible { display: flex; align-items: flex-start; gap: 8px; }
+
   .format-note svg { flex-shrink: 0; margin-top: 1px; }
-  .format-note.warn { border: 1px solid var(--warn-border); background: var(--warn-bg); color: var(--warn); }
-  .format-note.info { border: 1px solid var(--info-border); background: var(--info-bg); color: var(--info); }
+
+  .format-badges {
+    display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;
+  }
+
+  .badge {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .badge-ok { background: rgba(45,106,79,0.2); color: #5dbb8a; }
+  .badge-no { background: rgba(192,57,43,0.15); color: #e07a6f; }
+
   .preview-area {
-    min-height: 90px; background: var(--preview-bg); border-radius: 8px;
+    min-height: 90px; background: var(--preview-bg);
+    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     padding: 32px 40px; position: relative; overflow: hidden;
   }
+
   .preview-area.empty { background: var(--surface-2); }
-  .preview-area.empty::after { content: 'Equation preview will appear here'; color: #4a4f68; font-size: 13px; font-weight: 300; }
+  .preview-area.empty::after {
+    content: 'Equation preview will appear here';
+    color: #4a4f68; font-size: 13px; font-weight: 300;
+  }
+
   .preview-area .checkerboard {
     position: absolute; inset: 0;
     background-image:
@@ -122,33 +231,57 @@ window.MathJax = {
     background-position: 0 0, 0 8px, 8px -8px, -8px 0;
     opacity: 0.5; z-index: 0;
   }
-  #equation-display { position: relative; z-index: 1; color: #1a1a1a; font-size: 20px; }
+
+  #equation-display {
+    position: relative; z-index: 1;
+    color: #1a1a1a; font-size: 20px;
+  }
+
   .footer-info {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center;
+    justify-content: space-between;
     margin-top: 12px; font-size: 11px; color: var(--text-dim);
   }
+
   #status { font-weight: 500; }
+
   .examples { margin-top: 8px; }
-  .examples summary { font-size: 12px; color: var(--text-dim); cursor: pointer; font-weight: 500; user-select: none; }
+  .examples summary {
+    font-size: 12px; color: var(--text-dim);
+    cursor: pointer; font-weight: 500; user-select: none;
+  }
   .examples summary:hover { color: var(--accent); }
-  .example-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+  .example-chips {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+  }
+
   .chip {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 6px; padding: 6px 12px; cursor: pointer; color: var(--text-dim);
-    transition: all 0.15s; max-width: 100%; overflow: hidden;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 12px; cursor: pointer; color: var(--text-dim);
+    transition: all 0.15s;
+    max-width: 100%; overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap;
   }
-  .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+  .chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: var(--accent-glow);
+  }
+
   .toast {
     position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(80px);
-    background: #2d6a4f; color: #fff; padding: 12px 24px; border-radius: 8px;
-    font-size: 13px; font-weight: 500; opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #2d6a4f; color: #fff;
+    padding: 12px 24px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
   .spinner {
     display: none; width: 16px; height: 16px;
     border: 2px solid rgba(255,255,255,0.3);
@@ -156,6 +289,13 @@ window.MathJax = {
     animation: spin 0.6s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .transparency-table {
+    margin-top: 4px; font-size: 11px; color: var(--text-dim);
+  }
+  .transparency-table td { padding: 1px 6px; }
+  .transparency-table .yes { color: #5dbb8a; }
+  .transparency-table .no { color: #e07a6f; }
 </style>
 </head>
 <body>
@@ -169,6 +309,7 @@ window.MathJax = {
   <div class="card">
     <div class="card-label"><span class="dot"></span> LaTeX Input</div>
     <textarea id="latex-input" spellcheck="false" placeholder="Paste your LaTeX equation here...&#10;&#10;e.g.  \log(\mu_{ij}) = \alpha + \alpha_i^{\text{age}} + \beta_j^{\text{period}}"></textarea>
+
     <div class="controls">
       <button class="btn-render" onclick="renderEquation()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -181,39 +322,50 @@ window.MathJax = {
       </button>
       <button class="btn-clear" onclick="clearAll()">Clear</button>
     </div>
+
     <div class="options-row">
-      <div class="opt-group"><label>Font:</label>
+      <div class="opt-group">
+        <label>Font:</label>
         <select id="font-size" onchange="renderEquation()">
-          <option value="16">16px</option><option value="18">18px</option>
-          <option value="20" selected>20px</option><option value="24">24px</option>
-          <option value="28">28px</option><option value="32">32px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20" selected>20px</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+          <option value="32">32px</option>
         </select>
       </div>
-      <div class="opt-group"><label>DPI:</label>
+      <div class="opt-group">
+        <label>DPI:</label>
         <input type="number" id="dpi-input" value="300" min="72" max="2400" step="1" />
       </div>
-      <div class="opt-group"><label>Pad:</label>
+      <div class="opt-group">
+        <label>Pad:</label>
         <select id="padding-select">
-          <option value="8">Tight</option><option value="20" selected>Normal</option><option value="40">Wide</option>
+          <option value="8">Tight</option>
+          <option value="20" selected>Normal</option>
+          <option value="40">Wide</option>
         </select>
       </div>
-      <div class="opt-group"><label>Format:</label>
+      <div class="opt-group">
+        <label>Format:</label>
         <select id="format-select" onchange="onFormatChange()">
-          <option value="png" selected>PNG</option><option value="jpg">JPG</option>
-          <option value="jpeg">JPEG</option><option value="pdf">PDF (vector)</option>
-          <option value="svg">SVG (vector)</option><option value="tif">TIF</option>
+          <option value="png" selected>PNG</option>
+          <option value="jpg">JPG</option>
+          <option value="jpeg">JPEG</option>
+          <option value="pdf">PDF</option>
+          <option value="svg">SVG</option>
+          <option value="tif">TIF</option>
           <option value="tiff">TIFF</option>
         </select>
       </div>
     </div>
-    <div class="format-note warn" id="note-jpg">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span><strong>JPG/JPEG does not support transparency.</strong> White background will be used.</span>
+
+    <div class="format-note" id="format-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="format-note-text"></span>
     </div>
-    <div class="format-note info" id="note-vector">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-      <span id="note-vector-text"></span>
-    </div>
+
     <details class="examples">
       <summary>Example equations (click to expand)</summary>
       <div class="example-chips">
@@ -240,83 +392,78 @@ window.MathJax = {
 
 <div class="toast" id="toast"></div>
 
-<!-- Offscreen container for svg2pdf.js — it needs DOM-mounted SVGs with computed layout -->
-<div id="offscreen" style="position:fixed;left:-99999px;top:-99999px;visibility:hidden;pointer-events:none;overflow:hidden;"></div>
-
 <script>
-/* ═══════════════════════════════════════════
-   EXAMPLES & UTILITIES
-   ═══════════════════════════════════════════ */
-var examples = [
+/* ─── Examples ─── */
+const examples = [
   String.raw`\log(\mu_{ij}) = \alpha + \alpha_i^{\text{age}} + \beta_j^{\text{period}} + \gamma_k^{\text{cohort}} + \text{offset}(\log(N_{ij}))`,
   String.raw`\Delta N = N_t - N_0 = f(\Delta P, \Delta A, \Delta R, \text{Interactions})`,
   String.raw`w_m = \exp(-BIC_m / 2) \; / \; \Sigma_k \exp(-BIC_k / 2)`,
   String.raw`\textit{Preventable deaths} = \textit{Incident cases} \times (MIR_{\text{observed}} - MIR_{\text{frontier}})`
 ];
-var currentSVG = null;
 
-function loadExample(i) { document.getElementById('latex-input').value = examples[i]; renderEquation(); }
-function getLatex() { return document.getElementById('latex-input').value.trim(); }
-function getDPI() { var v = parseInt(document.getElementById('dpi-input').value); return (isNaN(v) || v < 72) ? 72 : (v > 2400 ? 2400 : v); }
+let currentSVG = null;
+
+function loadExample(i) {
+  document.getElementById('latex-input').value = examples[i];
+  renderEquation();
+}
 
 function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 2800);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-function downloadBlob(blob, filename) {
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(a.href); }, 2000);
-}
-
-/* ═══════════════════════════════════════════
-   FORMAT CHANGE UI
-   ═══════════════════════════════════════════ */
+/* ─── Format change handler ─── */
 function onFormatChange() {
-  var fmt = document.getElementById('format-select').value;
-  document.getElementById('note-jpg').classList.remove('visible');
-  document.getElementById('note-vector').classList.remove('visible');
-  document.getElementById('export-label').textContent = 'Export ' + fmt.toUpperCase();
+  const fmt = document.getElementById('format-select').value;
+  const note = document.getElementById('format-note');
+  const noteText = document.getElementById('format-note-text');
+  const label = document.getElementById('export-label');
+
+  label.textContent = 'Export ' + fmt.toUpperCase();
 
   if (fmt === 'jpg' || fmt === 'jpeg') {
-    document.getElementById('note-jpg').classList.add('visible');
-  } else if (fmt === 'svg') {
-    document.getElementById('note-vector-text').innerHTML =
-      '<strong>Vector SVG export.</strong> Each glyph is an editable vector path. ' +
-      'Open in Inkscape / Illustrator to edit individual paths. ' +
-      'An invisible text layer contains the LaTeX source for copy-paste (Ctrl+A → Ctrl+C in a text editor).';
-    document.getElementById('note-vector').classList.add('visible');
-  } else if (fmt === 'pdf') {
-    document.getElementById('note-vector-text').innerHTML =
-      '<strong>Vector PDF export.</strong> The equation is drawn as Bézier curves (not a raster image). ' +
-      'Editable in Illustrator / Inkscape. An invisible selectable text layer with the LaTeX source is embedded for Ctrl+A → copy in any PDF viewer.';
-    document.getElementById('note-vector').classList.add('visible');
+    noteText.innerHTML = '<strong>JPG/JPEG does not support transparency.</strong> The exported image will have a white background instead of transparent.';
+    note.classList.add('visible');
+  } else {
+    note.classList.remove('visible');
   }
 }
 
-/* ═══════════════════════════════════════════
-   RENDER EQUATION
-   ═══════════════════════════════════════════ */
+/* ─── Get DPI (clamped) ─── */
+function getDPI() {
+  var v = parseInt(document.getElementById('dpi-input').value);
+  if (isNaN(v) || v < 72) v = 72;
+  if (v > 2400) v = 2400;
+  return v;
+}
+
+/* ─── Render ─── */
 async function renderEquation() {
-  var latex = getLatex();
+  const latex = document.getElementById('latex-input').value.trim();
   if (!latex) return;
-  var fontSize = document.getElementById('font-size').value + 'px';
-  var display = document.getElementById('equation-display');
-  var container = document.getElementById('preview-container');
+
+  const fontSize = document.getElementById('font-size').value + 'px';
+  const display = document.getElementById('equation-display');
+  const container = document.getElementById('preview-container');
+  const checkerboard = document.getElementById('checkerboard');
+
   container.classList.remove('empty');
-  document.getElementById('checkerboard').style.display = 'block';
+  checkerboard.style.display = 'block';
   display.style.fontSize = fontSize;
+
   MathJax.typesetClear([display]);
   display.innerHTML = '$$' + latex + '$$';
+
   try {
     await MathJax.typesetPromise([display]);
     currentSVG = display.querySelector('svg');
+
     if (currentSVG) {
       document.getElementById('btn-export').disabled = false;
-      var bbox = currentSVG.getBoundingClientRect();
+      const bbox = currentSVG.getBoundingClientRect();
       document.getElementById('dimensions').textContent =
         Math.round(bbox.width) + ' × ' + Math.round(bbox.height) + ' px (screen)';
     }
@@ -326,241 +473,48 @@ async function renderEquation() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   CORE: Build clean export-ready SVG
-
-   Strategy: clone the MathJax SVG directly,
-   expand its own viewBox for padding,
-   set explicit px dimensions.
-   NO wrapper SVG. NO transform rewriting.
-   ═══════════════════════════════════════════ */
-function buildCleanSVG(padding) {
-  var src = currentSVG;
-  var bbox = src.getBoundingClientRect();
-  var screenW = bbox.width;
-  var screenH = bbox.height;
-
-  var clone = src.cloneNode(true);
-
-  // Set proper XML namespaces
+/* ─── Prepare self-contained SVG clone ─── */
+function buildExportSVG(sourceSvg, w, h) {
+  const clone = sourceSvg.cloneNode(true);
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-
-  // Read MathJax's viewBox (in its internal coordinate system)
-  var vb = clone.getAttribute('viewBox');
-  if (!vb) throw new Error('SVG has no viewBox');
-  var parts = vb.split(/[\s,]+/).map(Number);
-  var vx = parts[0], vy = parts[1], vw = parts[2], vh = parts[3];
-
-  // Convert padding from screen-px to viewBox units
-  var scaleX = vw / screenW;
-  var scaleY = vh / screenH;
-  var padVBx = padding * scaleX;
-  var padVBy = padding * scaleY;
-
-  // Expand viewBox to include padding on all sides
-  var newVx = vx - padVBx;
-  var newVy = vy - padVBy;
-  var newVw = vw + 2 * padVBx;
-  var newVh = vh + 2 * padVBy;
-
-  clone.setAttribute('viewBox', newVx + ' ' + newVy + ' ' + newVw + ' ' + newVh);
-
-  // Set explicit pixel dimensions (crucial for svg2pdf.js)
-  var totalW = screenW + 2 * padding;
-  var totalH = screenH + 2 * padding;
-  clone.setAttribute('width', totalW + 'px');
-  clone.setAttribute('height', totalH + 'px');
-
-  // Remove MathJax's relative-unit width/height styles that override our px values
-  clone.removeAttribute('style');
-
-  // Force all colors to black (replace currentColor)
+  clone.setAttribute('width', w + 'px');
+  clone.setAttribute('height', h + 'px');
+  clone.style.color = '#000000';
+  clone.setAttribute('color', '#000000');
   clone.querySelectorAll('*').forEach(function(el) {
     if (el.getAttribute('fill') === 'currentColor') el.setAttribute('fill', '#000000');
     if (el.getAttribute('stroke') === 'currentColor') el.setAttribute('stroke', '#000000');
   });
-
-  return {
-    svg: clone,
-    totalW: totalW,
-    totalH: totalH,
-    vx: newVx, vy: newVy, vw: newVw, vh: newVh
-  };
+  return clone;
 }
 
-
-/* ═══════════════════════════════════════════
-   EXPORT: SVG — direct vector, clean structure
-   ═══════════════════════════════════════════ */
-function exportSVG(padding) {
-  var result = buildCleanSVG(padding);
-  var svg = result.svg;
-  var latex = getLatex();
-
-  // Add metadata
-  var ns = 'http://www.w3.org/2000/svg';
-  var title = document.createElementNS(ns, 'title');
-  title.textContent = 'LaTeX: ' + latex;
-  svg.insertBefore(title, svg.firstChild);
-
-  var desc = document.createElementNS(ns, 'desc');
-  desc.textContent = latex;
-  svg.insertBefore(desc, title.nextSibling);
-
-  // Add invisible but selectable text layer
-  // Position it over the equation area in viewBox coordinates
-  var textEl = document.createElementNS(ns, 'text');
-  textEl.setAttribute('x', String(result.vx + result.vw / 2));
-  textEl.setAttribute('y', String(result.vy + result.vh / 2));
-  textEl.setAttribute('text-anchor', 'middle');
-  textEl.setAttribute('dominant-baseline', 'central');
-  textEl.setAttribute('font-family', 'serif');
-  textEl.setAttribute('font-size', String(result.vh * 0.6));
-  textEl.setAttribute('fill', 'rgba(0,0,0,0)');  // fully transparent but selectable
-  textEl.setAttribute('fill-opacity', '0.001');    // near-zero for max compatibility
-  textEl.textContent = latex;
-  svg.appendChild(textEl);
-
-  // Serialize with XML declaration
-  var svgStr = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' +
-    new XMLSerializer().serializeToString(svg);
-
-  var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-  downloadBlob(blob, 'equation_vector.svg');
-
-  return { width: Math.round(result.totalW), height: Math.round(result.totalH), vector: true };
+function svgToString(svgEl) {
+  return new XMLSerializer().serializeToString(svgEl);
 }
 
-
-/* ═══════════════════════════════════════════
-   EXPORT: PDF — vector paths via svg2pdf.js
-   with invisible selectable text layer
-   ═══════════════════════════════════════════ */
-async function exportPDF(dpi, padding) {
-  var info = buildCleanSVG(padding);
-  var svgEl = info.svg;
-  var totalW = info.totalW;
-  var totalH = info.totalH;
-  var latex = getLatex();
-
-  // CSS px → PDF pt conversion (72pt per inch, 96px per inch)
-  var pxToPt = 72 / 96;
-  var wPt = totalW * pxToPt;
-  var hPt = totalH * pxToPt;
-
-  var jsPDF = window.jspdf.jsPDF;
-
-  // Create PDF with exact page size
-  var pdf = new jsPDF({
-    orientation: wPt > hPt ? 'landscape' : 'portrait',
-    unit: 'pt',
-    format: [wPt, hPt],
-    compress: true
-  });
-
-  pdf.setProperties({
-    title: 'LaTeX Equation',
-    subject: latex,
-    creator: 'LaTeX to Image Converter'
-  });
-
-  // ── Mount SVG in offscreen DOM so svg2pdf.js can measure it ──
-  var offscreen = document.getElementById('offscreen');
-
-  // Create a container div with explicit px dimensions matching the SVG
-  var container = document.createElement('div');
-  container.style.cssText = 'width:' + totalW + 'px;height:' + totalH + 'px;display:block;';
-  container.appendChild(svgEl);
-  offscreen.appendChild(container);
-
-  // Small delay to let browser compute layout
-  await new Promise(function(r) { requestAnimationFrame(function() { requestAnimationFrame(r); }); });
-
-  var vectorOk = false;
-
-  // ── Try svg2pdf.js vector conversion ──
-  try {
-    if (typeof svg2pdf !== 'undefined' || (typeof pdf.svg === 'function')) {
-      await pdf.svg(svgEl, {
-        x: 0,
-        y: 0,
-        width: wPt,
-        height: hPt
-      });
-      vectorOk = true;
-      console.log('svg2pdf.js: vector conversion succeeded');
-    } else {
-      console.warn('svg2pdf.js not loaded — pdf.svg is not a function');
-    }
-  } catch (e) {
-    console.error('svg2pdf.js failed:', e);
-    vectorOk = false;
-  }
-
-  // ── Fallback: high-DPI raster ──
-  if (!vectorOk) {
-    console.log('Falling back to raster PDF at ' + dpi + ' DPI');
-    var canvasResult = await renderToCanvas(dpi, padding, true);
-    var pngDataUrl = canvasResult.canvas.toDataURL('image/png');
-    pdf.addImage(pngDataUrl, 'PNG', 0, 0, wPt, hPt);
-  }
-
-  // ── Add invisible selectable text layer ──
-  // This makes the LaTeX source copyable in any PDF viewer (like OCR PDFs)
-  try {
-    pdf.setFont('Helvetica', 'normal');
-    pdf.setFontSize(8);
-    // Rendering mode 3 = invisible (not painted but selectable/searchable)
-    pdf.text(latex, wPt / 2, hPt / 2, {
-      align: 'center',
-      renderingMode: 'invisible',
-      baseline: 'middle'
-    });
-    console.log('Invisible text layer added');
-  } catch (e) {
-    console.warn('renderingMode invisible not supported, using near-transparent fallback:', e);
-    try {
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(1);
-      pdf.text(latex, 0.5, hPt - 0.5);
-    } catch (e2) { /* silently fail text layer */ }
-  }
-
-  // Clean up offscreen DOM
-  offscreen.removeChild(container);
-
-  var suffix = vectorOk ? '_vector' : '_' + dpi + 'dpi';
-  pdf.save('equation' + suffix + '.pdf');
-
-  return { width: Math.round(totalW), height: Math.round(totalH), vector: vectorOk };
+function svgToDataURL(svgString) {
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
 }
 
-
-/* ═══════════════════════════════════════════
-   RASTER HELPERS (shared by PNG, JPG, TIFF)
-   ═══════════════════════════════════════════ */
+/* ─── Render SVG to Canvas (returns canvas) ─── */
 function renderToCanvas(dpi, padding, transparent) {
   return new Promise(function(resolve, reject) {
     if (!currentSVG) { reject(new Error('No equation')); return; }
 
-    var info = buildCleanSVG(0); // no extra padding — we handle it on canvas
-    var svgEl = info.svg;
+    var scale = dpi / 96;
     var bbox = currentSVG.getBoundingClientRect();
     var w = bbox.width, h = bbox.height;
-    var scale = dpi / 96;
-    var canvasW = Math.ceil((w + 2 * padding) * scale);
-    var canvasH = Math.ceil((h + 2 * padding) * scale);
+    var canvasW = Math.ceil((w + padding * 2) * scale);
+    var canvasH = Math.ceil((h + padding * 2) * scale);
 
-    // Re-set SVG to original size (no padding for canvas render)
-    svgEl.setAttribute('width', w + 'px');
-    svgEl.setAttribute('height', h + 'px');
-
-    var svgString = new XMLSerializer().serializeToString(svgEl);
-    var dataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+    var exportSvg = buildExportSVG(currentSVG, w, h);
+    var svgString = svgToString(exportSvg);
+    var dataUrl = svgToDataURL(svgString);
 
     var canvas = document.createElement('canvas');
-    canvas.width = canvasW; canvas.height = canvasH;
+    canvas.width = canvasW;
+    canvas.height = canvasH;
     var ctx = canvas.getContext('2d');
 
     if (!transparent) {
@@ -573,17 +527,14 @@ function renderToCanvas(dpi, padding, transparent) {
     var img = new Image();
     img.onload = function() {
       ctx.drawImage(img, padding * scale, padding * scale, w * scale, h * scale);
-      resolve({ canvas: canvas, width: canvasW, height: canvasH });
+      resolve({ canvas: canvas, width: canvasW, height: canvasH, screenW: w, screenH: h });
     };
     img.onerror = function() { reject(new Error('SVG render failed')); };
     img.src = dataUrl;
   });
 }
 
-
-/* ═══════════════════════════════════════════
-   EXPORT: PNG
-   ═══════════════════════════════════════════ */
+/* ─── Export: PNG ─── */
 async function exportPNG(dpi, padding) {
   var result = await renderToCanvas(dpi, padding, true);
   return new Promise(function(resolve, reject) {
@@ -595,11 +546,9 @@ async function exportPNG(dpi, padding) {
   });
 }
 
-/* ═══════════════════════════════════════════
-   EXPORT: JPG / JPEG
-   ═══════════════════════════════════════════ */
+/* ─── Export: JPG/JPEG ─── */
 async function exportJPG(dpi, padding, ext) {
-  var result = await renderToCanvas(dpi, padding, false);
+  var result = await renderToCanvas(dpi, padding, false); // white bg — JPG has no alpha
   return new Promise(function(resolve, reject) {
     result.canvas.toBlob(function(blob) {
       if (!blob) { reject(new Error('toBlob failed')); return; }
@@ -609,53 +558,191 @@ async function exportJPG(dpi, padding, ext) {
   });
 }
 
-/* ═══════════════════════════════════════════
-   EXPORT: TIFF — uncompressed RGBA + DPI metadata
-   ═══════════════════════════════════════════ */
+/* ─── Export: SVG ─── */
+function exportSVG(padding) {
+  if (!currentSVG) throw new Error('No equation');
+  var bbox = currentSVG.getBoundingClientRect();
+  var w = bbox.width, h = bbox.height;
+
+  // Create wrapper SVG with padding
+  var totalW = w + padding * 2;
+  var totalH = h + padding * 2;
+
+  var innerSvg = buildExportSVG(currentSVG, w, h);
+  innerSvg.setAttribute('x', padding);
+  innerSvg.setAttribute('y', padding);
+  innerSvg.removeAttribute('width');
+  innerSvg.removeAttribute('height');
+
+  var wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  wrapper.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  wrapper.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  wrapper.setAttribute('width', totalW);
+  wrapper.setAttribute('height', totalH);
+  wrapper.setAttribute('viewBox', '0 0 ' + totalW + ' ' + totalH);
+
+  // Transplant the inner SVG contents with a <g> offset
+  var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('transform', 'translate(' + padding + ',' + padding + ')');
+
+  // Copy defs
+  var defs = innerSvg.querySelector('defs');
+  if (defs) wrapper.appendChild(defs.cloneNode(true));
+
+  // Copy viewBox info to transform the content
+  var vb = innerSvg.getAttribute('viewBox');
+  if (vb) {
+    var parts = vb.split(/\s+/);
+    var innerG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    // Scale from viewBox to pixel size
+    var vbW = parseFloat(parts[2]), vbH = parseFloat(parts[3]);
+    var sx = w / vbW, sy = h / vbH;
+    innerG.setAttribute('transform', 'scale(' + sx + ',' + sy + ')');
+
+    // Copy all child elements except defs
+    Array.from(innerSvg.children).forEach(function(child) {
+      if (child.tagName !== 'defs') innerG.appendChild(child.cloneNode(true));
+    });
+    g.appendChild(innerG);
+  } else {
+    Array.from(innerSvg.children).forEach(function(child) {
+      if (child.tagName !== 'defs') g.appendChild(child.cloneNode(true));
+    });
+  }
+
+  wrapper.appendChild(g);
+
+  var svgStr = new XMLSerializer().serializeToString(wrapper);
+  var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+  downloadBlob(blob, 'equation.svg');
+  return { width: Math.round(totalW), height: Math.round(totalH) };
+}
+
+/* ─── Export: PDF ─── */
+async function exportPDF(dpi, padding) {
+  var result = await renderToCanvas(dpi, padding, true);
+  var { jsPDF } = window.jspdf;
+
+  // Convert canvas to PNG data URL
+  var pngDataUrl = result.canvas.toDataURL('image/png');
+
+  // PDF page sized exactly to image in mm (at the given DPI)
+  var widthMM = (result.width / dpi) * 25.4;
+  var heightMM = (result.height / dpi) * 25.4;
+
+  var orientation = widthMM > heightMM ? 'landscape' : 'portrait';
+  var pdf = new jsPDF({
+    orientation: orientation,
+    unit: 'mm',
+    format: [widthMM, heightMM]
+  });
+
+  // Transparent background (no fill)
+  pdf.addImage(pngDataUrl, 'PNG', 0, 0, widthMM, heightMM);
+  pdf.save('equation_' + dpi + 'dpi.pdf');
+  return result;
+}
+
+/* ─── Export: TIFF ─── */
 async function exportTIFF(dpi, padding, ext) {
   var result = await renderToCanvas(dpi, padding, true);
   var ctx = result.canvas.getContext('2d');
   var imageData = ctx.getImageData(0, 0, result.width, result.height);
-  var pixels = imageData.data;
-  var w = result.width, h = result.height, pixelBytes = w * h * 4;
+  var pixels = imageData.data; // Uint8ClampedArray RGBA
 
-  var numEntries = 14, ifdOffset = 8;
+  var w = result.width, h = result.height;
+  var pixelBytes = w * h * 4;
+
+  // Build TIFF file (uncompressed RGBA, little-endian)
+  var numEntries = 14;
+  var ifdOffset = 8;
   var ifdSize = 2 + numEntries * 12 + 4;
   var extraOffset = ifdOffset + ifdSize;
-  var bpsOff = extraOffset, xrOff = bpsOff + 8, yrOff = xrOff + 8;
-  var pixOff = yrOff + 8, totalSize = pixOff + pixelBytes;
 
-  var buf = new ArrayBuffer(totalSize), dv = new DataView(buf), p = 0;
-  dv.setUint8(p++, 0x49); dv.setUint8(p++, 0x49);
-  dv.setUint16(p, 42, true); p += 2;
-  dv.setUint32(p, ifdOffset, true); p += 4;
-  dv.setUint16(p, numEntries, true); p += 2;
+  // Extra data: BitsPerSample (4 SHORTs = 8 bytes), XRes (RATIONAL = 8 bytes), YRes (8 bytes)
+  var bpsOffset = extraOffset;
+  var xresOffset = bpsOffset + 8;
+  var yresOffset = xresOffset + 8;
+  var pixelDataOffset = yresOffset + 8;
 
-  function ifd(tag, type, count, val) {
-    dv.setUint16(p, tag, true); p += 2; dv.setUint16(p, type, true); p += 2;
-    dv.setUint32(p, count, true); p += 4; dv.setUint32(p, val, true); p += 4;
+  var totalSize = pixelDataOffset + pixelBytes;
+  var buf = new ArrayBuffer(totalSize);
+  var view = new DataView(buf);
+  var pos = 0;
+
+  // Header
+  view.setUint8(pos++, 0x49); // 'I'
+  view.setUint8(pos++, 0x49); // 'I' (little-endian)
+  view.setUint16(pos, 42, true); pos += 2;
+  view.setUint32(pos, ifdOffset, true); pos += 4;
+
+  // IFD entry count
+  view.setUint16(pos, numEntries, true); pos += 2;
+
+  function writeIFDEntry(tag, type, count, value) {
+    view.setUint16(pos, tag, true); pos += 2;
+    view.setUint16(pos, type, true); pos += 2;
+    view.setUint32(pos, count, true); pos += 4;
+    view.setUint32(pos, value, true); pos += 4;
   }
-  ifd(256,3,1,w); ifd(257,3,1,h); ifd(258,3,4,bpsOff); ifd(259,3,1,1);
-  ifd(262,3,1,2); ifd(273,4,1,pixOff); ifd(277,3,1,4); ifd(278,3,1,h);
-  ifd(279,4,1,pixelBytes); ifd(282,5,1,xrOff); ifd(283,5,1,yrOff);
-  ifd(284,3,1,1); ifd(296,3,1,2); ifd(338,3,1,2);
-  dv.setUint32(p, 0, true);
 
-  [0,2,4,6].forEach(function(o) { dv.setUint16(bpsOff + o, 8, true); });
-  dv.setUint32(xrOff, dpi, true); dv.setUint32(xrOff + 4, 1, true);
-  dv.setUint32(yrOff, dpi, true); dv.setUint32(yrOff + 4, 1, true);
-  new Uint8Array(buf, pixOff).set(pixels);
+  // Entries (must be sorted by tag)
+  writeIFDEntry(256, 3, 1, w);                    // ImageWidth SHORT
+  writeIFDEntry(257, 3, 1, h);                    // ImageLength SHORT
+  writeIFDEntry(258, 3, 4, bpsOffset);             // BitsPerSample → offset
+  writeIFDEntry(259, 3, 1, 1);                    // Compression = None
+  writeIFDEntry(262, 3, 1, 2);                    // PhotometricInterpretation = RGB
+  writeIFDEntry(273, 4, 1, pixelDataOffset);       // StripOffsets LONG
+  writeIFDEntry(277, 3, 1, 4);                    // SamplesPerPixel
+  writeIFDEntry(278, 3, 1, h);                    // RowsPerStrip
+  writeIFDEntry(279, 4, 1, pixelBytes);            // StripByteCounts LONG
+  writeIFDEntry(282, 5, 1, xresOffset);            // XResolution → offset
+  writeIFDEntry(283, 5, 1, yresOffset);            // YResolution → offset
+  writeIFDEntry(284, 3, 1, 1);                    // PlanarConfiguration = Chunky
+  writeIFDEntry(296, 3, 1, 2);                    // ResolutionUnit = Inch
+  writeIFDEntry(338, 3, 1, 2);                    // ExtraSamples = Unassociated alpha
 
-  downloadBlob(new Blob([buf], { type: 'image/tiff' }), 'equation_' + dpi + 'dpi.' + ext);
+  // Next IFD offset = 0 (no more IFDs)
+  view.setUint32(pos, 0, true); pos += 4;
+
+  // Extra data: BitsPerSample [8, 8, 8, 8]
+  view.setUint16(bpsOffset, 8, true);
+  view.setUint16(bpsOffset + 2, 8, true);
+  view.setUint16(bpsOffset + 4, 8, true);
+  view.setUint16(bpsOffset + 6, 8, true);
+
+  // XResolution rational: dpi / 1
+  view.setUint32(xresOffset, dpi, true);
+  view.setUint32(xresOffset + 4, 1, true);
+
+  // YResolution rational: dpi / 1
+  view.setUint32(yresOffset, dpi, true);
+  view.setUint32(yresOffset + 4, 1, true);
+
+  // Pixel data (RGBA straight from canvas)
+  var pixelArr = new Uint8Array(buf, pixelDataOffset);
+  pixelArr.set(pixels);
+
+  var blob = new Blob([buf], { type: 'image/tiff' });
+  downloadBlob(blob, 'equation_' + dpi + 'dpi.' + ext);
   return result;
 }
 
+/* ─── Download helper ─── */
+function downloadBlob(blob, filename) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 2000);
+}
 
-/* ═══════════════════════════════════════════
-   MAIN EXPORT DISPATCHER
-   ═══════════════════════════════════════════ */
+/* ─── Main export dispatcher ─── */
 async function doExport() {
   if (!currentSVG) return;
+
   var btn = document.getElementById('btn-export');
   var label = document.getElementById('export-label');
   var spinner = document.getElementById('export-spinner');
@@ -669,55 +756,52 @@ async function doExport() {
 
   try {
     var result;
+
     switch (fmt) {
       case 'png':
         result = await exportPNG(dpi, padding);
         break;
-      case 'jpg': case 'jpeg':
+      case 'jpg':
+      case 'jpeg':
         result = await exportJPG(dpi, padding, fmt);
         break;
       case 'svg':
         result = exportSVG(padding);
         document.getElementById('dimensions').textContent =
           'Exported: SVG vector (' + result.width + ' × ' + result.height + ')';
-        showToast('✓ Vector SVG — editable paths + selectable LaTeX');
+        showToast('✓ Exported SVG (vector — infinite resolution)');
         return;
       case 'pdf':
         result = await exportPDF(dpi, padding);
-        document.getElementById('dimensions').textContent =
-          'Exported: PDF ' + (result.vector ? 'vector' : dpi + ' DPI raster') +
-          ' (' + result.width + ' × ' + result.height + ')';
-        showToast(result.vector
-          ? '✓ Vector PDF — Bézier curves + selectable LaTeX'
-          : '⚠ Raster PDF @ ' + dpi + ' DPI (vector lib unavailable)');
-        return;
-      case 'tif': case 'tiff':
+        break;
+      case 'tif':
+      case 'tiff':
         result = await exportTIFF(dpi, padding, fmt);
         break;
     }
+
     if (result) {
       document.getElementById('dimensions').textContent =
         'Exported: ' + result.width + ' × ' + result.height + ' px @ ' + dpi + ' DPI — ' + fmt.toUpperCase();
       showToast('✓ ' + result.width + '×' + result.height + ' ' + fmt.toUpperCase() + ' @ ' + dpi + ' DPI');
     }
+
   } catch (err) {
     console.error('Export error:', err);
     showToast('Export failed — ' + err.message);
   } finally {
     btn.disabled = false;
-    label.textContent = 'Export ' + document.getElementById('format-select').value.toUpperCase();
+    label.textContent = 'Export ' + fmt.toUpperCase();
     spinner.style.display = 'none';
   }
 }
 
-
-/* ═══════════════════════════════════════════
-   CLEAR + KEYBOARD + INIT
-   ═══════════════════════════════════════════ */
+/* ─── Clear ─── */
 function clearAll() {
   document.getElementById('latex-input').value = '';
   var display = document.getElementById('equation-display');
-  MathJax.typesetClear([display]); display.innerHTML = '';
+  MathJax.typesetClear([display]);
+  display.innerHTML = '';
   document.getElementById('preview-container').classList.add('empty');
   document.getElementById('checkerboard').style.display = 'none';
   document.getElementById('btn-export').disabled = true;
@@ -725,16 +809,22 @@ function clearAll() {
   currentSVG = null;
 }
 
+/* ─── Keyboard shortcut ─── */
 document.getElementById('latex-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); renderEquation(); }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    renderEquation();
+  }
 });
 
+/* ─── Clamp DPI on blur ─── */
 document.getElementById('dpi-input').addEventListener('blur', function() {
   var v = parseInt(this.value);
   if (isNaN(v) || v < 72) this.value = 72;
   else if (v > 2400) this.value = 2400;
 });
 
+/* ─── Init ─── */
 document.getElementById('preview-container').classList.add('empty');
 onFormatChange();
 </script>
